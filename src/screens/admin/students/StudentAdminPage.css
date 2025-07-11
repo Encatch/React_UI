@@ -1,0 +1,140 @@
+.student-admin-container {
+  padding: 5px;
+  width: 100%;
+}
+
+.student-admin-table-container {
+  background: var(--sidebar-off-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.06);
+  border: 1px solid var(--divider-color);
+  padding: 14px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.student-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--divider-color);
+  background: transparent;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.student-admin-header h3 {
+  margin: 0;
+}
+
+.student-admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.student-admin-table-head {
+  background: var(--sidebar-white);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.student-admin-table-head th:first-of-type {
+  border-top-left-radius: 16px;
+}
+
+.student-admin-table-head th:last-of-type {
+  border-top-right-radius: 16px;
+}
+
+.student-admin-table-head .MuiTableCell-head {
+  color: var(--font-color);
+}
+
+.student-admin-empty-state {
+  padding: 24px 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+.student-admin-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-admin-empty-icon {
+  opacity: 0.3;
+}
+
+.student-search-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.add-student-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.add-student-btn:hover {
+  background: #125ea2;
+}
+
+.student-list-grid {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px;
+  min-height: 200px;
+}
+
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.student-table th, .student-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.student-table th {
+  background: #f5f7fa;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pagination button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.pagination button:disabled {
+  background: #b0b0b0;
+  cursor: not-allowed;
+} 

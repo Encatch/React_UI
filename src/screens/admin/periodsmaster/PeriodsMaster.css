@@ -1,0 +1,353 @@
+.periods-master-container {
+
+  min-height: 100vh;
+ 
+}
+
+.periods-master-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.periods-master-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.periods-master-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.periods-master-icon {
+  color: #1976d2;
+  font-size: 32px !important;
+}
+
+.periods-master-title {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin: 0;
+}
+
+.periods-master-stepper {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #1976d2;
+}
+
+.periods-master-step-content {
+  min-height: 400px;
+}
+
+.periods-master-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.periods-master-step-title {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.periods-master-step-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.periods-master-class-card,
+.periods-master-section-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+}
+
+.periods-master-class-card:hover,
+.periods-master-section-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #1976d2;
+}
+
+.periods-master-class-header,
+.periods-master-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.periods-master-class-icon,
+.periods-master-section-icon {
+  color: #1976d2;
+  font-size: 24px !important;
+}
+
+.periods-master-class-name,
+.periods-master-section-name {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin: 0;
+}
+
+.periods-master-add-btn {
+  background: linear-gradient(135deg, #1976d2, #42a5f5) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.periods-master-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+}
+
+.periods-master-form-paper {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 1px solid #dee2e6;
+}
+
+.periods-master-form {
+  padding: 24px;
+}
+
+.periods-master-form-title {
+  color: #1a1a1a;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.periods-master-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.periods-master-divider {
+  margin: 24px 0;
+  border-color: #e0e0e0;
+}
+
+.periods-master-content {
+  min-height: 400px;
+}
+
+.periods-master-periods-content {
+  min-height: 400px;
+}
+
+.periods-master-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.periods-master-empty-icon {
+  font-size: 64px !important;
+  color: #bdbdbd;
+  margin-bottom: 16px;
+}
+
+.periods-master-period-card {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+}
+
+.periods-master-period-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.periods-master-period-card.period-inactive {
+  opacity: 0.6;
+  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+}
+
+.periods-master-period-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.periods-master-period-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.periods-master-period-name {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin: 0;
+}
+
+.periods-master-period-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.periods-master-period-details {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(25, 118, 210, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+}
+
+.periods-master-period-teacher {
+  margin-bottom: 16px;
+}
+
+.periods-master-teacher-title {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.periods-master-teacher-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+}
+
+.periods-master-teacher-avatar {
+  background: linear-gradient(135deg, #1976d2, #42a5f5) !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.periods-master-teacher-name {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.periods-master-period-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .periods-master-container {
+    padding: 16px;
+  }
+  
+  .periods-master-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .periods-master-step-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .periods-master-form {
+    padding: 16px;
+  }
+  
+  .periods-master-form-actions {
+    flex-direction: column;
+  }
+  
+  .periods-master-period-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .periods-master-title {
+    font-size: 1.5rem;
+  }
+  
+  .periods-master-period-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .periods-master-period-actions {
+    align-self: flex-end;
+  }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.periods-master-period-card,
+.periods-master-class-card,
+.periods-master-section-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Custom scrollbar */
+.periods-master-sections-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.periods-master-sections-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.periods-master-sections-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.periods-master-sections-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+} 

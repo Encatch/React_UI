@@ -1,0 +1,25 @@
+.admin-dashboard-container {
+  padding: 32px;
+}
+
+.dashboard-cards {
+  display: flex;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 32px 48px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  min-width: 200px;
+  text-align: center;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+  background: #f5f7fa;
+} 
