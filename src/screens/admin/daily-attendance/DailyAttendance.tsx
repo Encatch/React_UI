@@ -78,7 +78,7 @@ const DailyAttendance: React.FC = () => {
           {tab === 0 && (
             <>
               <Grid container spacing={2} mb={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>Select Class</InputLabel>
                     <Select
@@ -97,7 +97,7 @@ const DailyAttendance: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small" disabled={!selectedClass}>
                     <InputLabel>Select Section</InputLabel>
                     <Select
@@ -115,7 +115,7 @@ const DailyAttendance: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField
                     label="Date"
                     type="date"
@@ -166,7 +166,7 @@ const DailyAttendance: React.FC = () => {
           {tab === 1 && (
             <Box>
               <Grid container spacing={2} mb={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>Select Class</InputLabel>
                     <Select
@@ -185,7 +185,7 @@ const DailyAttendance: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small" disabled={!selectedClass}>
                     <InputLabel>Select Section</InputLabel>
                     <Select
@@ -203,7 +203,7 @@ const DailyAttendance: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField
                     label="Week Start Date"
                     type="date"
@@ -276,7 +276,7 @@ const DailyAttendance: React.FC = () => {
           {tab === 2 && (
             <Box>
               <Grid container spacing={2} mb={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small">
                     <InputLabel>Select Class</InputLabel>
                     <Select
@@ -295,7 +295,7 @@ const DailyAttendance: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormControl fullWidth size="small" disabled={!selectedClass}>
                     <InputLabel>Select Section</InputLabel>
                     <Select
@@ -313,7 +313,7 @@ const DailyAttendance: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField
                     label="Month"
                     type="month"

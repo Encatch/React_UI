@@ -42,6 +42,7 @@ const menu = [
       { label: 'Marks Master', path: '/admin/marks-master' },
       { label: 'Pay Student Fee', path: '/admin/pay-student-fee' },
       { label: 'Daily Attendance', path: '/admin/daily-attendance' },
+      { label: 'Holiday Master', path: '/admin/holidays-list' },
     ],
   },
 ];

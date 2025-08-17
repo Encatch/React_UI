@@ -351,3 +351,9 @@
 .periods-master-sections-list::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 } 
+.periods-master-period-tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+}

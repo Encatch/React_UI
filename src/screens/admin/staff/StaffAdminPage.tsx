@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
 import { Modal } from '../../../components/Modal';
 import { TextField, IconButton, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper } from '@mui/material';
@@ -10,23 +10,30 @@ import { Tooltip } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import './StaffAdminPage.css';
 import '../admin.css';
+import { apiPost, apiGet, apiPut } from '../../../common/api';
 
-interface Staff {
+interface DropdownType{
+  id: number;
+  value: string;
+  type: string;
+};
+export interface Staff {
+  id: number | null;
   firstName: string;
   lastName: string;
-  gender: string;
-  qualification: string;
+  gender: DropdownType;
+  qualification: DropdownType;
   specialist: string;
   experience: string;
-  designation: string;
-  staffType: string;
+  designation: DropdownType;
+  staffType: DropdownType;
   mobile: string;
   email: string;
   username: string;
   password: string;
   availableTime: string;
   salary: string;
-  active: boolean;
+  active: DropdownType;
   transportRequired: boolean;
 }
 
@@ -41,12 +48,49 @@ const StaffAdminPage: React.FC = () => {
     `${s.firstName} ${s.lastName}`.toLowerCase().includes(search.toLowerCase())
   );
 
+  useEffect(() => {
+    async function fetchStaff() {
+      try {
+        const res = await apiGet('staff');
+        if (Array.isArray(res?.data)) {
+          const mapped = res.data.map((s: any) => ({
+            id: s.id || null,
+            firstName: s.firstName || '',
+            lastName: s.lastName || '',
+            gender: s.gender || '',
+            qualification: s.qualification || '',
+            specialist: s.specialist || '',
+            experience: s.experience || '',
+            designation: s.designation || '',
+            staffType: s.staffType || '',
+            mobile: s.mobileNumber || '',
+            email: s.email || '',
+            username: s.username || '',
+            password: s.password || '',
+            availableTime: '', // Customize this field as needed
+            salary: s.salary ? String(s.salary) : '',
+            active: s.isActive ?? true,
+            transportRequired: s.isTransportRequired ?? false,
+          }));
+          setStaffList(mapped);
+        } else {
+          setStaffList([]);
+        }
+      } catch (e) {
+        console.error('Failed to fetch staff:', e);
+        setStaffList([]);
+      }
+    }
+
+    fetchStaff();
+  }, []);
+
   const handleAddStaff = (staff: Staff) => {
     if (editIndex !== null) {
       setStaffList(prev => prev.map((s, i) => (i === editIndex ? { ...staff } : s)));
       setEditIndex(null);
     } else {
-      setStaffList(prev => [...prev, { ...staff, active: true }]);
+      setStaffList(prev => [...prev, { ...staff }]);
     }
     setShowAdd(false);
   };
@@ -116,8 +160,8 @@ const StaffAdminPage: React.FC = () => {
               filtered.map((s, i) => (
                 <TableRow key={i}>
                   <TableCell>{s.firstName} {s.lastName}</TableCell>
-                  <TableCell>{s.gender}</TableCell>
-                  <TableCell>{s.designation}</TableCell>
+                  <TableCell>{s.gender.value}</TableCell>
+                  <TableCell>{s.designation.value}</TableCell>
                   <TableCell>{s.mobile}</TableCell>
                   <TableCell>{s.email}</TableCell>
                   <TableCell>{s.active ? 'Active' : 'Inactive'}</TableCell>
@@ -142,7 +186,7 @@ const StaffAdminPage: React.FC = () => {
             onCancel={handleCancel}
             initialValues={
               editIndex !== null
-                ? { ...staffList[editIndex], active: staffList[editIndex].active ? 'Active' : 'Inactive' }
+                ? { ...staffList[editIndex], active: staffList[editIndex].active ? { id: 17, type: 'status', value: 'Active' } :  { id: 18, type: 'status', value: 'Inactive' } }
                 : undefined
             }
           />
@@ -154,12 +198,12 @@ const StaffAdminPage: React.FC = () => {
             {viewIndex !== null && (
               <>
                 <div className="staff-admin-detail-item"><b>Name:</b> {staffList[viewIndex].firstName} {staffList[viewIndex].lastName}</div>
-                <div className="staff-admin-detail-item"><b>Gender:</b> {staffList[viewIndex].gender}</div>
-                <div className="staff-admin-detail-item"><b>Qualification:</b> {staffList[viewIndex].qualification}</div>
+                <div className="staff-admin-detail-item"><b>Gender:</b> {staffList[viewIndex].gender.value}</div>
+                <div className="staff-admin-detail-item"><b>Qualification:</b> {staffList[viewIndex].qualification.value}</div>
                 <div className="staff-admin-detail-item"><b>Specialist:</b> {staffList[viewIndex].specialist}</div>
                 <div className="staff-admin-detail-item"><b>Experience:</b> {staffList[viewIndex].experience}</div>
-                <div className="staff-admin-detail-item"><b>Designation:</b> {staffList[viewIndex].designation}</div>
-                <div className="staff-admin-detail-item"><b>Staff Type:</b> {staffList[viewIndex].staffType}</div>
+                <div className="staff-admin-detail-item"><b>Designation:</b> {staffList[viewIndex].designation.value}</div>
+                <div className="staff-admin-detail-item"><b>Staff Type:</b> {staffList[viewIndex].staffType.value}</div>
                 <div className="staff-admin-detail-item"><b>Mobile:</b> {staffList[viewIndex].mobile}</div>
                 <div className="staff-admin-detail-item"><b>Email:</b> {staffList[viewIndex].email}</div>
                 <div className="staff-admin-detail-item"><b>Username:</b> {staffList[viewIndex].username}</div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, Typography, Button, TextField, Box, IconButton, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
@@ -7,6 +7,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import './ClassroomMaster.css';
 import '../admin.css';
+import { apiGet, apiPost } from '../../../common/api';
+import MuiAlert, { AlertColor } from '@mui/material/Alert';
 
 interface Section {
   id: number;
@@ -18,6 +20,8 @@ interface Classroom {
   name: string;
   sections: Section[];
 }
+
+
 
 const SimpleTreeView: React.FC<{
   classrooms: Classroom[];
@@ -102,23 +106,56 @@ const ClassRoomMaster: React.FC = () => {
   const [showAddClass, setShowAddClass] = useState(false);
   const [sectionInputs, setSectionInputs] = useState<{ [key: number]: string }>({});
   const [addSectionFor, setAddSectionFor] = useState<number | null>(null);
-
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: AlertColor }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
   // react-hook-form for classroom
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ClassroomFormValues>({
     resolver: yupResolver(classroomSchema),
     defaultValues: { className: '' },
   });
 
-  const handleAddClassroom: SubmitHandler<ClassroomFormValues> = (data) => {
+  useEffect(() => {
+    async function fetchClassOptions() {
+      try {
+        const res: any = await apiGet('student/classeswithsections');
+        if (Array.isArray(res)) {
+          
+          setClassrooms(res);
+          debugger
+        } else {
+         
+        }
+      } catch (e) {
+       
+      }
+    }
+    fetchClassOptions();
+  }, []);
+
+  const handleAddClassroom: SubmitHandler<ClassroomFormValues> = async (data) => {
     setClassrooms([
       ...classrooms,
       { id: Date.now(), name: data.className, sections: [] },
     ]);
+    try {
+      const response: any = await apiPost('student/saveClassroom',data);
+      if (response && (response.status === 'success')) {
+        setSnackbar({ open: true, message: 'Class added successfully!', severity: 'success' });
+      
+      } else {
+        setSnackbar({ open: true, message: 'Failed to add class.', severity: 'error' });
+      }
+    } catch (e) {
+     
+    }
     reset();
     setShowAddClass(false);
   };
 
-  const handleAddSection = (classId: number) => {
+  const handleAddSection = async (classId: number) => {
     const sectionName = sectionInputs[classId];
     if (sectionName && sectionName.trim()) {
       setClassrooms((prev) =>
@@ -136,6 +173,17 @@ const ClassRoomMaster: React.FC = () => {
       );
       setSectionInputs((prev) => ({ ...prev, [classId]: '' }));
       setAddSectionFor(null);
+          try {
+      const response: any = await apiPost('student/saveSection',{sectionName:sectionName,classId:classId});
+      if (response && (response.status === 'success')) {
+        setSnackbar({ open: true, message: 'Section added successfully!', severity: 'success' });
+      
+      } else {
+        setSnackbar({ open: true, message: 'Failed to add section.', severity: 'error' });
+      }
+    } catch (e) {
+     
+    }
     }
   };
 

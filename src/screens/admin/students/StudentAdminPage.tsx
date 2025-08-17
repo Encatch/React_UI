@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './StudentAdminPage.css';
 import '../admin.css';
 import AddStudentForm from './AddStudentForm';
@@ -9,19 +9,32 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper } from '@mui/material';
 import { ThemeProvider, createTheme, CssBaseline, useTheme } from '@mui/material';
+import { apiGet } from '../../../common/api';
+
+interface Option {
+  id: string;
+  name: string;
+}
+interface Gender{
+  id:number;
+  type?: string;
+  value: string;
+}
 
 interface Student {
+  id: number | null | undefined;
   firstName: string;
   lastName: string;
-  gender: string;
+  gender: Gender;
   parentName: string;
   motherName: string;
   fatherOccupation: string;
   motherOccupation: string;
   mobile: string;
-  email: string;
+  father_email: string;
   totalFee: string;
-  class: string;
+  class: Option;
+  section: Option;
   transportRequired: boolean;
   transportStart: string;
   address: string;
@@ -41,6 +54,41 @@ const StudentAdminPage: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [page, setPage] = useState(1);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function fetchStudents() {
+      try {
+        const res = await apiGet('student');
+        if (Array.isArray(res)) {
+          setStudents(res.map((s: any) => ({
+            id:s.id || null,
+            firstName: s.firstName || '',
+            lastName: s.lastName || '',
+            gender: s.gender || '',
+            parentName: s.fatherName || '',
+            motherName: s.motherName || '',
+            fatherOccupation: s.fatherOccupation || '',
+            motherOccupation: s.motherOccupation || '',
+            mobile: s.mobileNumber || '',
+            father_email: s.fatherEmail || '',
+            totalFee: s.feeDetails?.totalFee ? String(s.feeDetails.totalFee) : '',
+            class: s.class || { id: '', name: '' },
+            section: s.section || { id: '', name: '' },
+            transportRequired: s.isTransportRequired || false,
+            transportStart: '',
+            address: s.address || '',
+            transportFee: '',
+            active: true, // or use a field if available
+          })));
+        } else {
+          setStudents([]);
+        }
+      } catch (e) {
+        setStudents([]);
+      }
+    }
+    fetchStudents();
+  }, []);
 
   const filtered = students.filter(s =>
     `${s.firstName} ${s.lastName}`.toLowerCase().includes(search.toLowerCase())
@@ -124,11 +172,11 @@ const StudentAdminPage: React.FC = () => {
                 filtered.map((s, i) => (
                   <TableRow key={i}>
                     <TableCell>{s.firstName} {s.lastName}</TableCell>
-                    <TableCell>{s.gender}</TableCell>
+                    <TableCell>{s.gender.value}</TableCell>
                     <TableCell>{s.parentName}</TableCell>
                     <TableCell>{s.mobile}</TableCell>
-                    <TableCell>{s.email}</TableCell>
-                    <TableCell>{s.class}</TableCell>
+                    <TableCell>{s.father_email}</TableCell>
+                    <TableCell>{s.class.name}</TableCell>
                     <TableCell>{s.transportRequired ? 'Yes' : 'No'}</TableCell>
                     <TableCell>{s.active ? 'Active' : 'Inactive'}</TableCell>
                     <TableCell>
@@ -149,7 +197,29 @@ const StudentAdminPage: React.FC = () => {
               onCancel={handleCancel}
               initialValues={
                 editIndex !== null
-                  ? { ...students[editIndex], totalFee: Number(students[editIndex].totalFee), active: students[editIndex].active ? 'Active' : 'Inactive' }
+                  ? {
+                      id: students[editIndex].id,
+                      first_name: students[editIndex].firstName,
+                      last_name: students[editIndex].lastName,
+                      gender: students[editIndex].gender ,
+                      father_name: students[editIndex].parentName,
+                      mother_name: students[editIndex].motherName,
+                      father_occupation: { id: '', name: students[editIndex].fatherOccupation },
+                      mother_occupation: { id: '', name: students[editIndex].motherOccupation },
+                      mobile_number: students[editIndex].mobile,
+                      father_email: students[editIndex].father_email,
+                      total_fee: Number(students[editIndex].totalFee),
+                      discount_type: 'none',
+                      discount_value: 0,
+                      final_amount: Number(students[editIndex].totalFee),
+                      class: students[editIndex].class,
+                      section: students[editIndex].section,
+                      transport_required: students[editIndex].transportRequired,
+                      transport_start: students[editIndex].transportStart,
+                      address: students[editIndex].address,
+                      transport_fee: students[editIndex].transportFee,
+                      active: students[editIndex].active ? 'Active' : 'Inactive',
+                    }
                   : undefined
               }
             />

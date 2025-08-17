@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Grid, Box, MenuItem } from '@mui/material';
+import { Grid, Box } from '@mui/material';
 import { TextInput, CheckboxInput, DropdownInput } from '../../../components/FormElements';
 import { Button } from '../../../components/Button';
+import { apiPost, apiGet, apiPut } from '../../../common/api';
 import './AddStaffForm.css';
 import '../admin.css';
 
@@ -12,101 +13,151 @@ interface AddStaffFormProps {
   initialValues?: Partial<StaffFormValues>;
   readOnly?: boolean;
 }
-
+interface DropdownType{
+  id: number;
+  value: string;
+  type: string;
+};
 interface StaffFormValues {
+  id: number | null;
   firstName: string;
   lastName: string;
-  gender: string;
-  qualification: string;
+  gender: DropdownType;
+  qualification: DropdownType;
   specialist: string;
   experience: string;
-  designation: string;
-  staffType: string;
+  designation: DropdownType;
+  
+  staffType: DropdownType;
   mobile: string;
   email: string;
   username: string;
   password: string;
-  availableTime: string;
   salary: string;
-  active: string;
+  isActive: boolean;
+  active: DropdownType;
   transportRequired: boolean;
 }
 
-const genderOptions = ['Male', 'Female', 'Other'];
-const staffTypeOptions = ['Driver', 'Admin Staff', 'Teacher', 'Cleaning Staff'];
-const statusOptions = ['Active', 'Inactive'];
 
-function normalizeActive(val: unknown): 'Active' | 'Inactive' {
-  if (val === true) return 'Active';
-  if (val === false) return 'Inactive';
-  if (val === 'Inactive') return 'Inactive';
-  return 'Active';
+interface Option {
+  id: string;
+  name: string;
 }
 
+const normalizeActive = (val: boolean) => {
+  return val ? {id:1,type:'status',value:'Active'} : emprtyDropdown;
+};
+const emprtyDropdown: DropdownType = { id: 0, value: '', type: '' };
+
 const AddStaffForm: React.FC<AddStaffFormProps> = ({ onSave, onCancel, initialValues, readOnly }) => {
-  const { handleSubmit, control, watch, reset } = useForm<StaffFormValues>({
+  const { handleSubmit, control, reset } = useForm<StaffFormValues>({
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      gender: '',
-      qualification: '',
-      specialist: '',
-      experience: '',
-      designation: '',
-      staffType: '',
-      mobile: '',
-      email: '',
-      username: '',
-      password: '',
-      availableTime: '',
-      salary: '',
-      transportRequired: false,
+      firstName: '', lastName: '', gender:emprtyDropdown , qualification: emprtyDropdown, specialist: '',
+      experience: '', designation: emprtyDropdown, staffType: emprtyDropdown, mobile: '', email: '',
+      username: '', password: '', salary: '', transportRequired: false,
       ...initialValues,
-      active: normalizeActive(initialValues?.active),
+      active:initialValues?.active ? {id:17,type:'status',value:'Active'} : emprtyDropdown,
     },
   });
 
-  React.useEffect(() => {
+  const [genderOptions, setGenderOptions] = useState<Option[]>([]);
+  const [qualificationOptions, setQualificationOptions] = useState<Option[]>([]);
+  const [designationOptions, setDesignationOptions] = useState<Option[]>([]);
+  const [staffTypeOptions, setStaffTypeOptions] = useState<Option[]>([]);
+  const [statusOptions, setsStatusOptions] = useState<Option[]>([]);
+
+  useEffect(() => {
+    const fetchOptions = async (type: string, setter: (options: Option[]) => void) => {
+      try {
+        const res: any = await apiGet(`master?type=${type}`);
+        setter(Array.isArray(res) ? res : []);
+        setDataInEditMode(initialValues);
+      } catch {
+        setter([]);
+      }
+    };
+
+    fetchOptions('gender', setGenderOptions);
+    fetchOptions('Qualification', setQualificationOptions);
+    fetchOptions('Desgination', setDesignationOptions);
+    fetchOptions('StaffType', setStaffTypeOptions);
+    fetchOptions('Status', setsStatusOptions);
+    
+  }, []);
+
+  useEffect(() => {
     if (initialValues) {
-      reset({
-        ...initialValues,
-        active: normalizeActive(initialValues.active),
-      });
+      debugger
+      reset({ ...initialValues, active: {id:17,type:'status',value:'Active'} });
     }
   }, [initialValues, reset]);
 
-  const onSubmit: SubmitHandler<StaffFormValues> = (data) => {
-    onSave({ ...data, active: data.active === 'Active' });
+  const setDataInEditMode = (data: Partial<StaffFormValues> | undefined) => {
+    if (data) {
+      reset({
+        ...data,
+        active: {id:17,type:'status',value:'Active'},
+      });
+    }
+  };
+
+  const onSubmit: SubmitHandler<StaffFormValues> = async (data) => {
+    const payload = {
+      ...data,
+      active: data.active.value === 'Active',
+      id: data.id || null,
+    };
+    try {
+      const response = data.id ? await apiPut('staff/', payload) : await apiPost('staff/', payload);
+      if (response?.status === 'success') {
+        onSave(payload);
+      } else {
+        console.error('Failed to save staff');
+      }
+    } catch (e) {
+      console.error('Error saving staff', e);
+    }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} className="add-staff-form">
       <Grid container spacing={2} className="add-staff-form-grid">
-        <Grid item xs={12} sm={6}><TextInput control={control} name="firstName" label="First Name" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="lastName" label="Last Name" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><DropdownInput control={control} name="gender" label="Gender" options={genderOptions} disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="qualification" label="Qualification" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="specialist" label="Specialist" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="experience" label="Experience" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="designation" label="Designation" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><DropdownInput control={control} name="staffType" label="Staff Type" options={staffTypeOptions} disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="mobile" label="Mobile Number" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="email" label="Email ID" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="username" label="Username" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="password" label="Password" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="availableTime" label="Available Time" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><TextInput control={control} name="salary" label="Salary" disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6}><DropdownInput control={control} name="active" label="Status" options={statusOptions} disabled={readOnly} /></Grid>
-        <Grid item xs={12} sm={6} className="add-staff-form-checkbox-container">
+        {[ 
+          ['firstName', 'First Name'], ['lastName', 'Last Name'], ['specialist', 'Specialist'],
+          ['experience', 'Experience'], ['mobile', 'Mobile Number'], ['email', 'Email ID'],
+          ['username', 'Username'], ['password', 'Password'], ['salary', 'Salary']
+        ].map(([name, label]) => (
+          <Grid size={{ xs: 12, sm: 6 }} >
+            <TextInput control={control} name={name} label={label} disabled={readOnly} />
+          </Grid>
+        ))}
+
+        <Grid size={{ xs: 12, sm: 6 }} >
+          <DropdownInput control={control} name="gender" label="Gender" options={genderOptions} optionLabel="value" optionValue="id" returnObject />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }} >
+          <DropdownInput control={control} name="qualification" label="Qualification" options={qualificationOptions} optionLabel="value" optionValue="id" returnObject />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }} >
+          <DropdownInput control={control} name="designation" label="Designation" options={designationOptions} optionLabel="value" optionValue="id" returnObject />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }} >
+          <DropdownInput control={control} name="staffType" label="Staff Type" options={staffTypeOptions} optionLabel="value" optionValue="id" returnObject />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }} >
+          <DropdownInput control={control} name="active" label="Status" options={statusOptions} optionLabel="value" optionValue="id" returnObject disabled={readOnly} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}  className="add-staff-form-checkbox-container">
           <CheckboxInput control={control} name="transportRequired" label="Transport Required" disabled={readOnly} />
         </Grid>
-        <Grid item xs={12} className="add-staff-form-actions">
+        <Grid size={{ xs: 12}} className="add-staff-form-actions">
           {!readOnly && <Button type="submit" label="Save" />}
-          <Button type="button" label={readOnly ? "Close" : "Cancel"} color="secondary" onClick={onCancel} />
+          <Button type="button" label={readOnly ? 'Close' : 'Cancel'} color="secondary" onClick={onCancel} />
         </Grid>
       </Grid>
     </Box>
   );
 };
 
-export default AddStaffForm; 
+export default AddStaffForm;

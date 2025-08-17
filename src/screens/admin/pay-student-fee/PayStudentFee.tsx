@@ -96,11 +96,11 @@ const PayStudentFee: React.FC = () => {
             <Box>
               <Typography variant="subtitle1" fontWeight={500} mb={1}>Student Details</Typography>
               <Grid container spacing={2} mb={2}>
-                <Grid item xs={12} sm={6}><b>Name:</b> {selectedStudent.name}</Grid>
-                <Grid item xs={12} sm={6}><b>Class:</b> {mockClasses.find(c => c.id === selectedStudent.classId)?.name}</Grid>
-                <Grid item xs={12} sm={6}><b>Section:</b> {selectedStudent.section}</Grid>
-                <Grid item xs={12} sm={6}><b>Parent:</b> {selectedStudent.parent}</Grid>
-                <Grid item xs={12} sm={6}><b>Mobile:</b> {selectedStudent.mobile}</Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><b>Name:</b> {selectedStudent.name}</Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><b>Class:</b> {mockClasses.find(c => c.id === selectedStudent.classId)?.name}</Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><b>Section:</b> {selectedStudent.section}</Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><b>Parent:</b> {selectedStudent.parent}</Grid>
+                <Grid size={{ xs: 12, sm: 6 }}><b>Mobile:</b> {selectedStudent.mobile}</Grid>
               </Grid>
               <Typography variant="subtitle1" fontWeight={500} mb={1}>Fee Details (Term-wise)</Typography>
               <Table size="small">

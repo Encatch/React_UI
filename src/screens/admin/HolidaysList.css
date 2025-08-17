@@ -1,0 +1,49 @@
+/* HolidaysList.css */
+.holidays-list-container {
+  max-width: 500px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.holidays-list-title {
+  font-weight: 600;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.holidays-list-form {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.holidays-list-form .MuiTextField-root {
+  flex: 1;
+}
+
+.holidays-list-add-btn {
+  min-width: 100px;
+  height: 40px;
+}
+
+.holidays-list-paper {
+  margin-top: 16px;
+  padding: 8px 0;
+}
+
+.holidays-list-item {
+  border-bottom: 1px solid #eee;
+}
+
+.holidays-list-item:last-child {
+  border-bottom: none;
+}
+
+.holidays-list-date {
+  font-size: 13px;
+  color: #888;
+  margin-left: 8px;
+} 

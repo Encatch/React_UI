@@ -13,6 +13,7 @@
     "@mui/x-tree-view": "^8.7.0",
     "@types/firebase": "^2.4.32",
     "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.10.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "dayjs": "^1.11.13",

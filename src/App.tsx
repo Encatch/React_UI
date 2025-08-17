@@ -20,6 +20,7 @@ import ProgressNotesMaster from './screens/admin/progress-notes-master';
 import MarksMaster from './screens/admin/marks-master';
 import PayStudentFee from './screens/admin/pay-student-fee';
 import DailyAttendance from './screens/admin/daily-attendance';
+import HolidaysList from './screens/admin/HolidaysList';
 
 const App: React.FC = () => {
   return (
@@ -53,6 +54,7 @@ const App: React.FC = () => {
             <Route path="marks-master" element={<MarksMaster />} />
             <Route path="pay-student-fee" element={<PayStudentFee />} />
             <Route path="daily-attendance" element={<DailyAttendance />} />
+            <Route path="holidays-list" element={<HolidaysList />} />
           </Route>
           
           {/* Redirect root to login */}

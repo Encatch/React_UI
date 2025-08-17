@@ -43,17 +43,22 @@ import {
   Checkroom as UniformIcon,
   AttachMoney as MoneyIcon
 } from '@mui/icons-material';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, set } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import './FeeStructure.css';
 import '../../admin.css';
+import { apiPost, apiGet, apiPut } from "../../../../common/api";
 
 interface FeeItem {
+  feeName: unknown;
   id: number;
-  name: string;
+  name?: string;
   amount: number;
-  type: 'school_fee' | 'transport_fee' | 'uniform_fee' | 'other_fee';
+  feeType: {
+    id: number;
+    value: string;
+  };
   description?: string;
   isRequired: boolean;
 }
@@ -69,42 +74,20 @@ interface FeeStructure {
   createdAt: string;
   numberOfTerms: number;
 }
-
-// Mock classes data
-const mockClasses = [
-  { id: 1, name: 'LKG' },
-  { id: 2, name: 'UKG' },
-  { id: 3, name: 'Class 1' },
-  { id: 4, name: 'Class 2' },
-  { id: 5, name: 'Class 3' },
-  { id: 6, name: 'Class 4' },
-  { id: 7, name: 'Class 5' },
-  { id: 8, name: 'Class 6' },
-  { id: 9, name: 'Class 7' },
-  { id: 10, name: 'Class 8' },
-  { id: 11, name: 'Class 9' },
-  { id: 12, name: 'Class 10' },
-];
-
-const feeTypes = [
-  { value: 'school_fee', label: 'School Fee', icon: <SchoolIcon />, color: 'primary' },
-  { value: 'transport_fee', label: 'Transport Fee', icon: <TransportIcon />, color: 'secondary' },
-  { value: 'uniform_fee', label: 'Uniform Fee', icon: <UniformIcon />, color: 'warning' },
-  { value: 'other_fee', label: 'Other Fee', icon: <MoneyIcon />, color: 'info' },
-];
-
 // Form validation schema
 const feeStructureSchema = yup.object({
   className: yup.string().required('Class is required'),
   academicYear: yup.string().required('Academic Year is required'),
   feeItems: yup.array().of(
     yup.object({
-      id: yup.number().required(),
-      name: yup.string().required('Fee name is required'),
-      amount: yup.number().required('Amount is required').min(0, 'Amount must be positive'),
-      type: yup.string().oneOf(['school_fee', 'transport_fee', 'uniform_fee', 'other_fee']).required('Fee type is required'),
+      id: yup.number(),
+      feeName: yup.string(),
+      amount: yup.number(),
+      feeType: yup.object({         // expects object
+        id: yup.number(),
+        value: yup.string(),
+      }),
       description: yup.string(),
-      isRequired: yup.boolean().required(),
     })
   ).min(1, 'At least one fee item is required').required('Fee items are required'),
   numberOfTerms: yup.number().required('Number of terms is required').min(1, 'At least 1 term'),
@@ -117,8 +100,20 @@ type FeeStructureFormValues = {
   numberOfTerms: number;
 };
 
+interface Subject {
+  id: number;
+  name: string;
+  code: string;
+}
+
+interface Option {
+  id: string;
+  name: string;
+}
 const FeeStructure: React.FC = () => {
   const [feeStructures, setFeeStructures] = useState<FeeStructure[]>([]);
+  const [classOptions, setClassOptions] = useState<Subject[]>([]);
+  const [feeOptions, setFeeOptions] = useState<Option[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingStructure, setEditingStructure] = useState<FeeStructure | null>(null);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
@@ -144,12 +139,56 @@ const FeeStructure: React.FC = () => {
     setValue('feeItems', feeItems);
   }, [feeItems, setValue]);
 
+  React.useEffect(() => {
+      async function fetchClassOptions() {
+        try {
+          const res: any = await apiGet("student/classes");
+          if (Array.isArray(res)) {
+            setClassOptions(res);
+          } else {
+            setClassOptions([]);
+          }
+        } catch (e) {
+          setClassOptions([]);
+        }
+      }
+      fetchClassOptions();
+      
+
+      const fetchOptions = async (type: string, setter: (options: Option[]) => void) => {
+            try {
+              const res: any = await apiGet(`master?type=${type}`);
+              setter(Array.isArray(res) ? res : []);
+              
+            } catch {
+              setter([]);
+            }
+          };
+      fetchOptions('FeeType', setFeeOptions);
+      getAllFees();
+    }, []);
+
+    async function getAllFees() {
+      try {
+        const res: any = await apiGet("master/fee-structure");
+        if (Array.isArray(res)) {
+          setFeeStructures(res);
+        } else {
+          setClassOptions([]);
+        }
+      } catch (e) {
+        setClassOptions([]);
+      }
+}
   const handleAddFeeItem = () => {
     const newItem: FeeItem = {
       id: Date.now(),
-      name: '',
+      feeName: '',
       amount: 0,
-      type: 'school_fee',
+      feeType: {
+        id: 0,  
+        value: '',
+      },
       description: '',
       isRequired: true,
     };
@@ -157,8 +196,16 @@ const FeeStructure: React.FC = () => {
   };
 
   const handleUpdateFeeItem = (id: number, field: keyof FeeItem, value: any) => {
+    debugger
+    if(field === 'feeType'){
+      feeOptions.forEach(option => {
+        if(option.value === value){
+          value = option;
+        }
+      });
+    }
     setFeeItems(prev => prev.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
+      item.id === id ? { ...item, [field]: value,feeTypeId:item.feeType.id } : item
     ));
   };
 
@@ -170,14 +217,15 @@ const FeeStructure: React.FC = () => {
     return items.reduce((total, item) => total + item.amount, 0);
   };
 
-  const handleSaveFeeStructure: SubmitHandler<FeeStructureFormValues> = (data) => {
-    const selectedClass = mockClasses.find(c => c.name === data.className);
+  const handleSaveFeeStructure: SubmitHandler<FeeStructureFormValues> = async(data) => {
+    debugger
+    const selectedClass = classOptions.find(c => c.name === data.className);
     if (!selectedClass) return;
 
     const totalAmount = calculateTotalAmount(feeItems);
     
     const newStructure: FeeStructure = {
-      id: Date.now(),
+      id: 0,
       className: data.className,
       classId: selectedClass.id,
       academicYear: data.academicYear,
@@ -187,44 +235,66 @@ const FeeStructure: React.FC = () => {
       createdAt: new Date().toISOString(),
       numberOfTerms: data.numberOfTerms,
     };
-
-    setFeeStructures([...feeStructures, newStructure]);
+        try {
+          const response = await apiPost('master/fee-structure', newStructure);
+          getAllFees();
+          if (response?.status === 'success') {
+            showSnackbar("Fee created successfully!", "success");
+          } else {
+            console.error('Failed to save staff');
+          }
+        } catch (e) {
+          console.error('Error saving staff', e);
+        }
+    //setFeeStructures([...feeStructures, newStructure]);
     reset();
     setFeeItems([]);
     setShowAddForm(false);
     showSnackbar('Fee structure created successfully!', 'success');
   };
 
+
+     
+
   const handleEditStructure = (structure: FeeStructure) => {
+    debugger
     setEditingStructure(structure);
-    setValue('className', structure.className);
+    setValue('className', structure.class.name);
     setValue('academicYear', structure.academicYear);
     setValue('numberOfTerms', structure.numberOfTerms);
     setFeeItems([...structure.feeItems]);
     setShowAddForm(true);
   };
 
-  const handleUpdateStructure: SubmitHandler<FeeStructureFormValues> = (data) => {
+  const handleUpdateStructure: SubmitHandler<FeeStructureFormValues> = async(data) => {
     if (!editingStructure) return;
 
-    const selectedClass = mockClasses.find(c => c.name === data.className);
+    const selectedClass = classOptions.find(c => c.name === data.className);
     if (!selectedClass) return;
 
     const totalAmount = calculateTotalAmount(feeItems);
-    
-    const updatedStructure: FeeStructure = {
-      ...editingStructure,
+    const newStructure: FeeStructure = {
+      id: editingStructure.id,
       className: data.className,
       classId: selectedClass.id,
       academicYear: data.academicYear,
       totalAmount,
       feeItems: [...feeItems],
+      isActive: true,
+      createdAt: new Date().toISOString(),
       numberOfTerms: data.numberOfTerms,
     };
-
-    setFeeStructures(prev => prev.map(s => 
-      s.id === editingStructure.id ? updatedStructure : s
-    ));
+        try {
+          const response = await apiPut('master/fee-structure', newStructure);
+          getAllFees();
+          if (response?.status === 'success') {
+            showSnackbar("Fee updated successfully!", "success");
+          } else {
+            console.error('Failed to save staff');
+          }
+        } catch (e) {
+          console.error('Error saving staff', e);
+        }
     
     setEditingStructure(null);
     reset();
@@ -252,15 +322,15 @@ const FeeStructure: React.FC = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
-  const getFeeTypeIcon = (type: string) => {
-    const feeType = feeTypes.find(ft => ft.value === type);
-    return feeType ? feeType.icon : <MoneyIcon />;
-  };
+  // const getFeeTypeIcon = (type: string) => {
+  //   const feeType = feeTypes.find(ft => ft.value === type);
+  //   return feeType ? feeType.icon : <MoneyIcon />;
+  // };
 
-  const getFeeTypeColor = (type: string) => {
-    const feeType = feeTypes.find(ft => ft.value === type);
-    return feeType ? feeType.color : 'default';
-  };
+  // const getFeeTypeColor = (type: string) => {
+  //   const feeType = feeTypes.find(ft => ft.value === type);
+  //   return feeType ? feeType.color : 'default';
+  // };
 
   const numberOfTerms = watch('numberOfTerms') || 1;
 
@@ -294,7 +364,7 @@ const FeeStructure: React.FC = () => {
             <DialogContent>
               <Box component="form" onSubmit={handleSubmit(editingStructure ? handleUpdateStructure : handleSaveFeeStructure)} className="fee-structure-form">
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <FormControl fullWidth size="small" error={!!errors.className}>
                       <InputLabel>Select Class</InputLabel>
                       <Select
@@ -302,7 +372,7 @@ const FeeStructure: React.FC = () => {
                         onChange={(e) => setValue('className', e.target.value)}
                         label="Select Class"
                       >
-                        {mockClasses.map((cls) => (
+                        {classOptions.map((cls) => (
                           <MenuItem key={cls.id} value={cls.name}>
                             {cls.name}
                           </MenuItem>
@@ -313,7 +383,7 @@ const FeeStructure: React.FC = () => {
                       )}
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <TextField
                       label="Academic Year"
                       size="small"
@@ -324,7 +394,7 @@ const FeeStructure: React.FC = () => {
                       placeholder="e.g., 2024-2025"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       label="Number of Terms"
                       type="number"
@@ -366,39 +436,38 @@ const FeeStructure: React.FC = () => {
                   ) : (
                     <Grid container spacing={2}>
                       {feeItems.map((item, index) => (
-                        <Grid item xs={12} key={item.id}>
+                        <Grid size={{ xs: 12 }} key={item.id}>
                           <Paper elevation={1} className="fee-item-card" sx={{ mb: 2 }}>
                             <Grid container spacing={2} alignItems="center">
-                              <Grid item xs={12} md={3}>
+                              <Grid size={{ xs: 12, md: 3 }}>
                                 <FormControl fullWidth size="small">
                                   <InputLabel>Fee Type</InputLabel>
                                   <Select
-                                    value={item.type}
-                                    onChange={(e) => handleUpdateFeeItem(item.id, 'type', e.target.value)}
+                                    value={item.feeType.value}
+                                    onChange={(e) => handleUpdateFeeItem(item.id, 'feeType', e.target.value)}
                                     label="Fee Type"
                                   >
-                                    {feeTypes.map((type) => (
-                                      <MenuItem key={type.value} value={type.value}>
+                                    {feeOptions.map((type) => (
+                                      <MenuItem key={type.id} value={type.value}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                          {type.icon}
-                                          {type.label}
+                                          {type.value}
                                         </Box>
                                       </MenuItem>
                                     ))}
                                   </Select>
                                 </FormControl>
                               </Grid>
-                              <Grid item xs={12} md={3}>
+                              <Grid size={{ xs: 12, md: 3 }}>
                                 <TextField
                                   label="Fee Name"
                                   size="small"
                                   fullWidth
-                                  value={item.name}
-                                  onChange={(e) => handleUpdateFeeItem(item.id, 'name', e.target.value)}
+                                  value={item.feeName}
+                                  onChange={(e) => handleUpdateFeeItem(item.id, 'feeName', e.target.value)}
                                   placeholder="e.g., Tuition Fee"
                                 />
                               </Grid>
-                              <Grid item xs={12} md={2}>
+                              <Grid size={{ xs: 12, md: 2 }}>
                                 <TextField
                                   label="Amount (₹)"
                                   size="small"
@@ -408,7 +477,7 @@ const FeeStructure: React.FC = () => {
                                   onChange={(e) => handleUpdateFeeItem(item.id, 'amount', Number(e.target.value))}
                                 />
                               </Grid>
-                              <Grid item xs={12} md={3}>
+                              <Grid size={{ xs: 12, md: 3 }}>
                                 <TextField
                                   label="Description (Optional)"
                                   size="small"
@@ -418,7 +487,7 @@ const FeeStructure: React.FC = () => {
                                   placeholder="Additional details"
                                 />
                               </Grid>
-                              <Grid item xs={12} md={1}>
+                              <Grid size={{ xs: 12, md: 1 }}>
                                 <IconButton
                                   color="error"
                                   onClick={() => handleRemoveFeeItem(item.id)}
@@ -487,12 +556,12 @@ const FeeStructure: React.FC = () => {
             ) : (
               <Grid container spacing={3}>
                 {feeStructures.map((structure) => (
-                  <Grid item xs={12} md={6} lg={4} key={structure.id}>
+                  <Grid size={{ xs: 12, md: 6, lg: 4 }} key={structure.id}>
                     <Card elevation={2} className={`fee-structure-item-card ${!structure.isActive ? 'fee-structure-inactive' : ''}`} sx={{ mb: 3 }}>
                       <CardContent sx={{ p: 2 }}>
                         <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
                           <Box display="flex" alignItems="center" gap={1}>
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>{structure.className}</Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>{structure.class.name}</Typography>
                             <Chip label={structure.isActive ? 'Active' : 'Inactive'} color={structure.isActive ? 'success' : 'default'} size="small" />
                           </Box>
                           <Box display="flex" alignItems="center" gap={1}>
@@ -516,9 +585,9 @@ const FeeStructure: React.FC = () => {
                         <List dense>
                           {structure.feeItems.map(item => (
                             <ListItem key={item.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 0 }}>
-                              <Box>{getFeeTypeIcon(item.type)}</Box>
+                              {/* <Box>{getFeeTypeIcon(item.type)}</Box> */}
                               <Box>
-                                <Typography variant="body2">{item.name} ({item.type.replace('_', ' ')}):</Typography>
+                                <Typography variant="body2">{item.name} ({item.feeType.value}):</Typography>
                                 <Typography variant="caption" color="text.secondary">₹{item.amount.toFixed(2)}
                                   {numberOfTerms > 1 && (
                                     <span style={{ color: '#888', marginLeft: 8 }}>

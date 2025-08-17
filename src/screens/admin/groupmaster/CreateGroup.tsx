@@ -59,7 +59,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ onSave, onCancel, initialValu
   return (
     <Box p={2}>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <TextField
             label="Group Name"
             value={name}
@@ -68,7 +68,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ onSave, onCancel, initialValu
             size="small"
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <FormControl fullWidth size="small">
             <InputLabel>Assign Members</InputLabel>
             <Select
@@ -99,7 +99,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ onSave, onCancel, initialValu
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} display="flex" justifyContent="flex-end" gap={1}>
+        <Grid size={12} display="flex" justifyContent="flex-end" gap={1}>
           <Button variant="contained" onClick={handleSave} disabled={!name || selectedMembers.length === 0}>
             Save
           </Button>
